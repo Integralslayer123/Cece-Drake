@@ -5,20 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My IoT Page</title>
 <style>
-  /* ---------- YOU CAN CHANGE ALL OF THIS ---------- */
-  body { font-family: Arial, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; background: #f5f5f5; color: #222; }
-  h1   { margin-bottom: 4px; }
-  .card { background: #fff; border-radius: 12px; padding: 20px; margin: 16px 0; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
-  .status { font-size: 1.6rem; font-weight: bold; margin: 8px 0; }
-  .small { color: #666; font-size: .9rem; }
-  button { font-size: 1rem; padding: 10px 18px; margin: 4px; border: 0; border-radius: 8px; cursor: pointer; color: #fff; }
-  .red   { background: #d33; }
-  .green { background: #2a2; }
-  .blue  { background: #36c; }
-  .off   { background: #555; }
-  .flash { animation: flash .6s; }
-  @keyframes flash { from { background: #ffe66d; } to { background: #fff; } }
-  #errors { color: #b00; white-space: pre-wrap; }
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #fce4f3, #e9ddff, #dcecff);
+    color: #514267;
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    color: #a66acb;
+    font-size: 38px;
+    font-weight: 800;
+}
+
+h2 {
+    color: #9565bd;
+    font-weight: 800;
+}
+
+.card, section {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 22px;
+    padding: 24px;
+    margin: 20px auto;
+    max-width: 650px;
+    box-shadow: 0 8px 25px rgba(135, 100, 180, 0.13);
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+button {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    margin: 5px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #e9a9d6, #b99bea);
+    color: white;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px #c9a6e8;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+.flash {
+    animation: screenFlash 0.55s ease;
+}
+
+@keyframes screenFlash {
+    0% { background-color: #ffffff; }
+    35% { background-color: #f5c8ed; }
+    70% { background-color: #d9c9ff; }
+    100% { background-color: transparent; }
+}
 </style>
 </head>
 <body>
