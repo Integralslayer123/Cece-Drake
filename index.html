@@ -65,6 +65,19 @@ button:active {
     transform: scale(0.96);
 }
 
+/* brightness slider */
+.slider-row {
+    margin: 14px 5px 5px;
+    font-weight: 700;
+}
+
+.slider-row input[type="range"] {
+    width: 100%;
+    max-width: 320px;
+    vertical-align: middle;
+    accent-color: #a66acb;
+}
+
 .flash {
     animation: screenFlash 0.55s ease;
 }
@@ -79,6 +92,7 @@ button:active {
 </head>
 <body>
 
+</script>
 <h1>My IoT Page</h1>
 <p class="small">Adafruit IO user: <span id="whoami">?</span> &nbsp;|&nbsp; <a href="#" id="changeKey">change key</a></p>
 
@@ -94,8 +108,17 @@ button:active {
 <div class="card">
   <h2>Remote Lamp</h2>
   <button class="red"   onclick="sendLamp('red')">Red</button>
+  <button class="green" onclick="sendLamp('green')">Green</button>
+  <button class="blue"  onclick="sendLamp('blue')">Blue</button>
   <button class="off"   onclick="sendLamp('off')">Off</button>
-  <!-- YOUR TURN: add Green, Blue, and a Buzzer button. -->
+  <button class="buzzer" onclick="sendBuzzer()">Buzzer</button>
+
+  <div class="slider-row">
+    Brightness: <span id="brightnessValue">25</span>
+    <br>
+    <input type="range" id="brightnessSlider" min="0" max="100" value="25">
+  </div>
+
   <div class="small" id="lampStatus"></div>
 </div>
 
@@ -108,10 +131,12 @@ button:active {
 /* =====================================================================
    SETTINGS - change these two lines
    ===================================================================== */
-const IO_USERNAME   = "Integralslayer123";   // <-- your Adafruit IO username
-const DOORBELL_FEED = "doorbell";                     // Project A feed (Arduino -> web)
-const LAMP_FEED     = "lamp";                         // Project B feed (web -> Arduino)
-const POLL_MS       = 2000;                           // how often to check the doorbell feed (ms). Keep >= 2000.
+const IO_USERNAME    = "Integralslayer123";   // <-- your Adafruit IO username
+const DOORBELL_FEED  = "doorbell";                     // Project A feed (Arduino -> web)
+const LAMP_FEED      = "lamp";                         // Project B feed (web -> Arduino)
+const BUZZER_FEED    = "buzzer";                       // buzzer feed (web -> Arduino)
+const BRIGHTNESS_FEED = "brightness";                  // brightness feed (web -> Arduino)
+const POLL_MS        = 2000;                           // how often to check the doorbell feed (ms). Keep >= 2000.
 
 /* =====================================================================
    YOUR KEY IS NOT IN THIS FILE ON PURPOSE.
@@ -192,24 +217,44 @@ function showDoorbell(value, createdAt, flash) {
 }
 
 /* =====================================================================
-   PROJECT B - write to the lamp feed when a button is clicked
+   PROJECT B - write to the lamp, buzzer and brightness feeds
    ===================================================================== */
-async function sendLamp(value) {
+async function sendToFeed(feed, value) {
   const status = document.getElementById("lampStatus");
   status.textContent = "Sending '" + value + "'...";
   try {
-    const res = await fetch(BASE + LAMP_FEED + "/data", {
+    const res = await fetch(BASE + feed + "/data", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-AIO-Key": IO_KEY },
-      body: JSON.stringify({ value: value })
+      body: JSON.stringify({ value: String(value) })
     });
     if (res.status === 429) { status.textContent = "Slow down! Rate limit hit (30 per minute)."; return; }
+    if (res.status === 404) { status.textContent = "Feed '" + feed + "' not found. Create it on io.adafruit.com."; return; }
     if (!res.ok) { status.textContent = "Adafruit IO replied " + res.status; return; }
     status.textContent = "Sent '" + value + "' at " + new Date().toLocaleTimeString();
   } catch (err) {
     status.textContent = "Could not send: " + err.message;
   }
 }
+
+function sendLamp(value) {
+  return sendToFeed(LAMP_FEED, value);
+}
+
+function sendBuzzer() {
+  return sendToFeed(BUZZER_FEED, "beep");
+}
+
+// Brightness slider: the number updates while you drag,
+// but the value is only sent when you let go (protects the rate limit).
+const brightnessSlider = document.getElementById("brightnessSlider");
+const brightnessValue  = document.getElementById("brightnessValue");
+brightnessSlider.addEventListener("input", () => {
+  brightnessValue.textContent = brightnessSlider.value;
+});
+brightnessSlider.addEventListener("change", () => {
+  sendToFeed(BRIGHTNESS_FEED, brightnessSlider.value);
+});
 
 /* ---------- start ---------- */
 checkDoorbell();
